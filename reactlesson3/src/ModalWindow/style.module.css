@@ -1,0 +1,9 @@
+.modal-window {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.modal-window--hidden {
+	display: none;
+}
