@@ -2,7 +2,6 @@ import { makeAutoObservable, runInAction } from 'mobx';
 
 export default class Products{
 	products = [];
-	some = 1;
 	
 	item(id){
 		return this.products.find(pr => pr.id == id);
@@ -14,7 +13,6 @@ export default class Products{
 
 		runInAction(() => {
 			this.products = products;
-			this.some = 2;
 		});
 	}	
 

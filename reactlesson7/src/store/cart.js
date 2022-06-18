@@ -6,6 +6,7 @@ const BASEURL = 'http://faceprog.ru/reactcourseapi/cart/';
 export default class Cart{
 	items = [];
 	#token = null;
+	inProcess = [];
 	
 	get itemsDetailed(){
 		return this.items.map(item => {
@@ -18,26 +19,44 @@ export default class Cart{
 		return this.itemsDetailed.reduce((sum, pr) => sum + pr.price * pr.cnt, 0);
 	}
 
+	inProc (id) {
+			return this.inProcess.some(el => el == id);
+	}
+
 	inCart(id){
 		return this.items.some(item => item.id == id);
 	}
 
-	change = (id, cnt) => {
-		let item = this.items.find(item => item.id == id);
+	change = async (id, cnt) => {
+		if (this.inCart(id)) {
+			let response = await fetch(`${BASEURL}change.php?token=${this.#token}&id=${id}&cnt=${cnt}`);
+			let res = await response.json();
 
-		if(item !== undefined){
-			let detailts = this.itemsDetailed.find(item => item.id == id);
-			item.cnt = Math.max(1, Math.min(detailts.rest, cnt));
+
+			if (res) {
+				let item = this.items.find(item => item.id == id);
+
+				if(item !== undefined){
+					let detailts = this.itemsDetailed.find(item => item.id == id);
+					runInAction(() => {
+						item.cnt = Math.max(1, Math.min(detailts.rest, cnt));
+					})
+				}
+			} 
 		}
 	}
 
 	add = async (id) => {
 		if(!this.inCart(id)){
+			this.inProcess.push(id);
 			let response = await fetch(`${BASEURL}add.php?token=${this.#token}&id=${id}`);
 			let res = await response.json();
 
 			if(res){
-				this.items.push({ id, cnt: 1 });
+				runInAction(() => {
+					this.items.push({ id, cnt: 1 });
+					this.inProcess.splice(this.inProcess.indexOf(id),1);
+				})
 			}
 		}
 	}
@@ -48,7 +67,9 @@ export default class Cart{
 			let res = await response.json();
 
 			if(res){
-				this.items = this.items.filter(item => item.id != id);
+				runInAction(() => {
+					this.items = this.items.filter(item => item.id != id);
+				})
 			}
 		}
 	}
@@ -61,6 +82,18 @@ export default class Cart{
 		if(needUpdate){
 			this.rootStore.storage.setItem('CART__TOKEN', token);
 		}
+
+		runInAction(() => {
+			this.items = cart; 
+			this.#token = token;
+		});
+	}
+
+	new = async () => {
+		let response = await fetch(`${BASEURL}load.php`);
+		let { cart, token, needUpdate } = await response.json();
+
+		this.rootStore.storage.setItem('CART__TOKEN', token);
 
 		runInAction(() => {
 			this.items = cart; 

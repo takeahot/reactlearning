@@ -7,7 +7,6 @@ import { observer } from 'mobx-react-lite';
 import { Link, useNavigate } from 'react-router-dom'
 
 export default observer(function(){
-	console.log('order');
 	const navigate = useNavigate();
 	let [ orderStore ] = useStore('order');
 	

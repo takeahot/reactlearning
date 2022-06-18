@@ -7,6 +7,8 @@ export default class Order{
 		{ name: 'name', label: 'Name', value: '', valid: false, pattern: /^.{2,}$/ }
 	]
 
+	lastSentOrder
+
 	get formValid(){
 		return this.form.every(f => f.valid);
 	}
@@ -30,7 +32,16 @@ export default class Order{
 		}
 	}
 
-	send(){
+	send = () => {
+
+		this.lastSentOrder = { 
+			cart: {
+				items: this.rootStore.cart.items,
+				total: this.rootStore.cart.total
+			},
+			order: this.data
+		}
+
 		// fetch, ajax
 		/* 
 			let form = {
@@ -43,6 +54,12 @@ export default class Order{
 				body: form
 			})
 		*/
+		this.rootStore.cart.new();
+		this.clear();
+	}
+
+	clear = () => {
+		this.form.forEach(field => field.value = '');
 	}
 
 	constructor(rootStore){
