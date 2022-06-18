@@ -1,8 +1,16 @@
 import React, { useState } from 'react'
 import { Modal, Button } from 'react-bootstrap';
+import useStore from './hooks/useStore'
 
-export default function({ fields, onChange, onPrev, onNext }){
-	let isValid = fields.every(f => f.valid);
+import { observer } from 'mobx-react-lite';
+
+export default observer(Order);
+
+function Order ({ fields, onChange, onPrev, onNext }){
+	let [ order ] = useStore( 'order' );
+	let { data , update } = order;
+	let isValid = data.every(f => f.valid);
+
 	let [ showModal, setShowModal ] = useState(false);
 	let [ confirmed, setConfirmed ] = useState(false);
 	let openModal = () => setShowModal(true);
@@ -22,7 +30,7 @@ export default function({ fields, onChange, onPrev, onNext }){
 		<h1>Input data</h1>
 		<hr/>
 		<form>
-		{ fields.map(field => (
+		{ data.map(field => (
 			<div className="form-group" key={field.name}>
 				<label>{field.label}</label>
 				<input
@@ -30,7 +38,7 @@ export default function({ fields, onChange, onPrev, onNext }){
 					className={`form-control ${field.value.length && !field.valid ? 'border border-danger' : ''}`}
 					name={field.name}
 					value={field.value}
-					onChange={e => onChange(field.name, e.target.value.trim())}
+					onChange={e => update(field.name, e.target.value.trim())}
 				/>
 			</div>
 		)) }

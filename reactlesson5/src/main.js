@@ -7,10 +7,13 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import App from './App';
 import StoreContext from './contexts/store'
-import cartStore from './store/cart'
+import rootStore from './store/rootStore';
+// import cartStore from './store/cart'
+// import orderStore from './store/order'
 
 const store = {
-	cart: cartStore
+	cart: rootStore.cart,
+	order: rootStore.order 
 };
 
 ReactDom.render(

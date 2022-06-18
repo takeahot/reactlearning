@@ -19,8 +19,9 @@ export class Cart{
 		this.products = this.products.filter(pr => pr.id !== id);
 	}
 
-	constructor(){
+	constructor(rootStore){
 		makeAutoObservable(this);
+		this.rootStore = rootStore;
 	}
 }
 
